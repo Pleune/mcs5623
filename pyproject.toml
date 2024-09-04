@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "mcs5623"
+version = "0.1.0"
+description = "Mitchell Pleune's workspace for mcs5623"
+authors = ["Mitchell Pleune <mitchpleune@gmail.com>"]
+license = "UNLICENSED"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+scikit-learn = "^1.5.1"
+
+[tool.poetry.group.jupyter.dependencies]
+jupyterlab = "^4.2.5"
+
+[tool.poetry.group.dev.dependencies]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
