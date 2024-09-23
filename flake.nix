@@ -34,7 +34,10 @@
           };
 
           devShells.default = pkgs.mkShell {
-            packages = [ (mkPoetryEnv { projectDir = ./.; }) ];
+            packages = [
+              pkgs.bashInteractive
+              (mkPoetryEnv { projectDir = ./.; })
+            ];
           };
         };
     };
