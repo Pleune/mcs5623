@@ -14,6 +14,8 @@ pandas = "^2.2.2"
 matplotlib = "^3.9.2"
 seaborn = "^0.13.2"
 openpyxl = "^3.1.5"
+xlrd = "^2.0.1"
+imbalanced-learn = "^0.12.4"
 
 [tool.poetry.group.jupyter.dependencies]
 jupyterlab = "^4.2.5"

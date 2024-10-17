@@ -1,0 +1,295 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{biblatex}
+\usepackage{hyperref}
+\usepackage{subfig}
+\usepackage{placeins}
+\usepackage{float}
+\addbibresource{refrences.bib}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+
+\begin{document}
+
+\title{PA\#04: Credit Card Default Prediction}
+
+\author{\IEEEauthorblockN{Mitchell Pleune}
+	\IEEEauthorblockA{\textit{College of Arts and Sciences} \\
+		\textit{Lawrence Technological University}\\
+		Southfield, USA \\
+		mpleune@ltu.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+	This document is the report for Programming-Assignment number four of Mohammad El-Bathy's Machine Learning class MCS5623, CRN 1853, for the fall semester of 2024.
+	It reports my exploration and modeling of the provided Credit Card Default data.
+\end{abstract}
+
+\section{Introduction}
+
+Managing risk is a core responsibility of a bank. This includes forming an
+understanding of whether an account will default in the future. This paper
+looks at data from the mass-defaulting of many credit-card accounts in the
+Taiwanese economy in 2006. \cite{default_of_credit_card_clients_350}
+
+In the years leading up to 2006, credit lenders in Taiwan were over-issuing
+cash and credit, causing the general population to accrue large amounts of
+debt. This came to head in the third-quarter of 2006, when many accounts
+defaulted on their payments. \cite{Yeh2009TheCO}
+
+This paper will independently analyze and model the data provided by I-Cheng
+Yeh and Che-hui Lien, focusing primarily on logistic regression and random
+forest techniques.
+
+Models are used from the scikit-learn library\cite{scikit-learn}. Data is
+loaded with pandas\cite{pandas2020}\cite{pandas2010} and manipulated with
+numpy\cite{numpy}. Graphs are created with matplotlib\cite{matplotlib} and
+seaborn\cite{seaborn}. Data balancing is done with the help of the
+imblearn\cite{imblearn} library.
+
+\FloatBarrier
+\section{DATASET ANALYSIS \& UNDERSTANDING}
+
+\subsection{Data Characteristics}
+
+\begin{figure}[ht]
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-pay.png}}\\
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-billamt.png}}\\
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-payamt.png}}
+	\caption{Histograms of all continuous features}
+	\label{hists}
+\end{figure}
+
+The dataset represents a snapshot in time from the third-quarter of 2006, with
+six months of bill, payment, and payment-status history. The account holder's
+gender, education, marital status, and age are recorded. There are twenty-three
+features across 30,000 observations. Each observation is labeled with weather
+or not that account will default within the next month.
+
+There are no missing data, and all features are in integer format. The features
+columns are as described below\cite{Yeh2009TheCO}:
+
+\begin{itemize}
+	\item X1: Amount of the given credit (NT dollar): it includes both the individual
+	      consumer credit and his/her family (supplementary) credit.
+	\item X2: Gender (1 = male; 2 = female).
+	\item X3: Education (1 = graduate school; 2 = university; 3 = high school; 4 =
+	      others).
+	\item X4: Marital status (1 = married; 2 = single; 3 = others).
+	\item X5: Age (year).
+	\item X6–X11: History of past payment as follows: X6 = the repayment status in
+	      September 2005; X7 = the repayment status in August 2005; \ldots ; X11 = the
+	      repayment status in April 2005. The measurement scale for the repayment status
+	      is: 1 = pay duly; 1 = payment delay for one month; 2 = payment delay for two
+	      months; \ldots ; 8 = payment delay for eight months; 9 = payment delay for nine
+	      months and above.
+	\item X12–X17: Amount of bill statement (NT dollar), as follows: X12 = amount of bill
+	      statement in September 2005; X13 = amount of bill statement in August 2005;
+	      \ldots ; X17 = amount of bill statement in April 2005.
+	\item X18–X23: Amount of previous payment (NT dollar). X18 = amount paid in September
+	      2005; X19 = amount paid in August 2005; \ldots ; X23 = amount paid in April
+	      2005.
+\end{itemize}
+
+\subsection{Feature Analysis \& Selection}
+
+\begin{figure}[ht]
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-paycomp.png}}\\
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-billamtcomp.png}}\\
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-payamtcomp.png}}
+	\caption{Histograms of all computed features}
+	\label{hists_computed}
+\end{figure}
+
+Of the 30,000 data points, 6,636 (22.12\%) are labeled as defaulted. The label
+(account will default within the next month), age, sex, education, and marital
+status features are described in the list below. \autoref{hists} visualizes the
+rest of the features.
+
+\begin{itemize}
+	\item The most frequent age is 28, tapering down in both directions to 18 and 60 in a
+	      nearly linear way.
+	\item 11,888 (39.6\%) are male and 18,112 (60.4\%) are female
+	\item 4,917 (16.5\%) are high school, 14,030 (46.8\%) are university, 10,585 (35.3\%) are graduate, and other education levels are of negligible amounts
+	\item 13,659 (45.5\%) are married, 15,964 (53.2\%) are single, and 323 (1.1\%) are other
+\end{itemize}
+
+\subsection{Data Cleaning/Preprocessing}
+
+The data contains no null data. There are 14 invalid education records, and 54
+invalid marital status records. Due to the minimal number, these records have
+been dropped. Of all the bill and payment records, none are less than zero, and
+none are more than two-million dollars. As this is a large selection of the
+population of Taiwan, this dollar range is expected. \clearpage
+
+\subsection{Data Visualization – Independent Features}
+
+It is clear that the groups of history features (X6-X11, X12-X17, X18-X23) are
+all strongly related to each other. For this reason, an additional 12 features
+are computed as the mean, median, minimum, and maximum of the groupings. For
+example, BILL\_AMT\_AVG is the mean of BILL\_AMT(1-6). These can be seen in
+\autoref{hists_computed}
+
+\begin{figure}[ht]
+	\centering
+	\subfloat{\includegraphics[width=0.5\linewidth]{../../workbooks/Pleune-M-PA04-paymincompare.png}}
+	\subfloat{\includegraphics[width=0.5\linewidth]{../../workbooks/Pleune-M-PA04-paymaxcompare.png}}\\
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-payamtcompare.png}}\\
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-billamtcompare.png}}
+	\caption{Comparisons of distributions between label values}
+	\label{hists_compare}
+\end{figure}
+
+Looking at the comparisons in \autoref{hists_compare}, some unexpected data
+traits become evident.
+
+\begin{IEEEitemize}
+	\item Nearly all accounts constantly paid-ahead (PAY\_MIN g.t. 1 month) results in
+	default.
+	\item Accounts that are never over-paid (PAY\_MAX l.t. 1 month) are much less likely
+	to default.
+	\item Accounts that are about to default on average make slightly smaller payments,
+	but do not have different bills.
+\end{IEEEitemize}
+
+\begin{figure}[ht]
+	\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-featureperformance.png}
+	\caption{The performance of a logistic regression trained on a single features.}
+	\label{feature_performance}
+\end{figure}
+
+All features, pre-existing and computed, are left in the dataset for analysis.
+To aid in dataset understanding and feature selection, for each feature, a
+single-input regression is trained. The performance of each regression is seen
+in \autoref{feature_performance}. See \autoref{results} for more details on
+K-Fold cross-validation, imbalance correction, and AUROC performance evaluation
+criteria. Scores are rescaled from [0.5, 1] to [0, 1], as a random model would
+achieve a AUROC of 0.5.
+
+\FloatBarrier
+\section{DATA TRANSFORMATION \& MODELS USED}
+
+\subsection{Feature Scaling}
+
+Of the two model types considered in \autoref{regression} and
+\autoref{rforest}, only the regression will require data normalization. The
+decision trees will not be affected by feature scale or offset. Therefore, all
+features are normalized by standard-deviation. The features are not
+re-centered, as the zero-points have intrinsic meaning.
+
+\subsection{One-hot Encoding for Logistic Regression Classifier}
+
+All categorical features (gender, education and marital status), are one-hot
+encoded into additional feature columns.
+
+\subsection{Integer Label Encoding for Random Forest Classifier}
+
+The dataset has all categorical features encoded as integers.
+
+\subsection{Logistic Regression Classifier} \label{regression}
+
+Initially, a logistic regression classifier was chosen to model the account
+defaults. Specifically, the LogisticRegression class from the scikit-learn
+Python library\cite{sklearn_api}. The initial fitting using default parameters,
+and achieves a score of 44.7\% with a standard deviation of 1.2\%. Only
+original dataset features (non computed or encoded) were used in the initial
+evaluation.
+
+\subsection{Random Forest Ensemble Classifier} \label{rforest}
+
+Additionally, a random-forest classifier was chosen to compliment the
+regression model. Specifically, the RandomForestClassifier class from the
+scikit-learn Python library\cite{sklearn_api}. The default arguments were used,
+including the usage of 100 classifiers. The initial fitting achieves a score of
+52.5\% with a standard deviation of 0.8\%. Only original dataset features (non
+computed or encoded) were used in the initial evaluation.
+
+\subsection{Handling the Data Imbalance}
+
+The label class for non-defaulting accounts massively outweighs the defaulting
+accounts. To correct for this during training, all training data is randomly
+over-sampled to balance the label classes. The entire dataset cannot be over
+sampled, because then identical duplicated accounts would appear in both the
+test and train slices. This would cause the performance of the evaluated test
+slice to be significantly artificially increased.
+
+Due to the imbalance, a simple accuracy metric does not adequately represent
+model performance. For example, a model that always predicts a non-default
+result would obtain an accuracy of roughly 78\%. The receiving operating curve
+(ROC) curve better represents model performance by plotting precision and
+recall along varying probability thresholds. To represent these curves as a
+single metric, the area under the curve is taken, known as the AUROC
+performance. A random-guess algorithm will have a AUROC of 0.5, so the
+algorithm performance is rescaled from [0.5, 1] into [0, 1].
+
+\FloatBarrier
+\section{EXPERIMENTS \& MODEL RESULTS} \label{results}
+
+All models and performance metrics use 5-fold cross-validation in training and
+evaluation. Standard deviations are provided from the five samples.
+
+\subsection{Logistic Regression Tuning \& Evaluation}
+
+\begin{figure}
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-regressionroc.png}}\\
+	\subfloat{\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-rforestroc.png}}
+	\caption{The receiver operating characteristic curves for each K-Fold of the final logistic-regression and random-forest trainings.}
+	\label{roc}
+\end{figure}
+
+When changing the input column selection, on occasion the variance of ROC
+curves would dramatically increase. When this happens, increasing the number of
+iterations improved the score. The addition of the binary-encoded and computed
+features increased the score to 49.1\% with standard-deviation 1.1\%. The
+maximum iterations limit was increased from 100 to 1,000, which only resulted
+in minimal improvement. \autoref{roc} shows the final ROC curves of the model.
+
+\subsection{Random Forest Tuning \& Evaluation}
+
+Including the computed features, increasing the number of estimators to 1,000,
+using a warm start, and changing to log\_loss, and disabling the random
+over-sampling increased the score to 54.6\% with a standard-deviation of 1.2\%.
+\autoref{roc} shows the final ROC curves of the model.
+
+\FloatBarrier
+\section{CONCLUSION}
+
+Overall, both logistic-regression and random-forest classifications proved to
+be moderately successful, both predicting approximately 50\% better than a
+random-guess classification.
+
+\subsection{Lessons Learned}
+
+During the course of this research, I originally tried random over-sampling the
+dataset before splitting the test and train sets. This caused "data leakage,"
+significantly artificially increasing the performance metrics.
+
+\subsection{Mistakes Made, Challenges, \& Future Considerations}
+
+Unfortunately, this dataset only labels if the account will default within the
+next month. It may be guessed that regardless of the "true risk" that an
+account closes, the bank may not have closed each account within one month,
+particularly since banks will usually handle these matters on a month-by-month
+basis. In other words, the noise of the default date may be larger, than this
+one-month window. It is then concluded that the lack of model accuracy and
+recall performance may be due to this label criterion. It is presumed that if
+the metric was increased to a multi-month window or changed to a continuous
+metric, performance may increase, and models may better be able to predict true
+account risk. A continuous metric could be "account defaulted in n months."
+
+\section*{APPENDIX A}
+
+The Jupyter Notebook with the data and Python code used in this paper will be
+available at
+\href{https://github.com/Pleune/mcs5623/}{github.com/Pleune/mcs5623} after the
+completion of the course. Included here are locked versions of all Python
+modules to ensure repeatability.
+
+\printbibliography
+
+\end{document}

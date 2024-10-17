@@ -1,2 +1,13 @@
 **/.ipynb_checkpoints
 .direnv
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.bdf_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.fdb_latexmk
