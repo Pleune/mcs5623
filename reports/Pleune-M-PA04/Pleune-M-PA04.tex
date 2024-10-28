@@ -26,8 +26,10 @@
 \maketitle
 
 \begin{abstract}
-	This document is the report for Programming-Assignment number four of Mohammad El-Bathy's Machine Learning class MCS5623, CRN 1853, for the fall semester of 2024.
-	It reports my exploration and modeling of the provided Credit Card Default data.
+	This document is the report for Programming-Assignment \#4 of Mohammad
+	El-Bathy's Machine Learning class MCS5623, CRN 1853, for the fall
+	semester of 2024. It reports my exploration and modeling of the
+	provided Credit Card Default data.
 \end{abstract}
 
 \section{Introduction}
@@ -66,10 +68,10 @@ imblearn\cite{imblearn} library.
 \end{figure}
 
 The dataset represents a snapshot in time from the third-quarter of 2006, with
-six months of bill, payment, and payment-status history. The account holder's
+6 months of bill, payment, and payment-status history. The account holder's
 gender, education, marital status, and age are recorded. There are twenty-three
-features across 30,000 observations. Each observation is labeled with weather
-or not that account will default within the next month.
+features across 30,000 observations. Each observation is labeled with whether
+that account will default in the next month.
 
 There are no missing data, and all features are in integer format. The features
 columns are as described below\cite{Yeh2009TheCO}:
@@ -106,10 +108,9 @@ columns are as described below\cite{Yeh2009TheCO}:
 	\label{hists_computed}
 \end{figure}
 
-Of the 30,000 data points, 6,636 (22.12\%) are labeled as defaulted. The label
-(account will default within the next month), age, sex, education, and marital
-status features are described in the list below. \autoref{hists} visualizes the
-rest of the features.
+Of the 30,000 data points, 6,636 (22.12\%) are labeled as defaulted. Age, sex,
+education, and marital status features are described in the list below.
+\autoref{hists} visualizes the rest of the features.
 
 \begin{itemize}
 	\item The most frequent age is 28, tapering down in both directions to 18 and 60 in a
@@ -121,19 +122,20 @@ rest of the features.
 
 \subsection{Data Cleaning/Preprocessing}
 
-The data contains no null data. There are 14 invalid education records, and 54
-invalid marital status records. Due to the minimal number, these records have
-been dropped. Of all the bill and payment records, none are less than zero, and
-none are more than two-million dollars. As this is a large selection of the
-population of Taiwan, this dollar range is expected. \clearpage
+There is no null data. There are 14 invalid education records, and 54 invalid
+marital status records. Due to the minimal number, these records have been
+dropped. Of all the bill and payment records, none are less than zero, and none
+are more than two-million dollars. As this is a large selection of the
+population of Taiwan, this dollar range is expected, and no removal based on
+bill and payment records. \clearpage
 
 \subsection{Data Visualization – Independent Features}
 
-It is clear that the groups of history features (X6-X11, X12-X17, X18-X23) are
-all strongly related to each other. For this reason, an additional 12 features
-are computed as the mean, median, minimum, and maximum of the groupings. For
-example, BILL\_AMT\_AVG is the mean of BILL\_AMT(1-6). These can be seen in
-\autoref{hists_computed}
+It is clear by their histograms that the groups of history features (X6-X11,
+X12-X17, X18-X23) are all strongly related to each other. For this reason, an
+additional 12 features are computed as the mean, median, minimum, and maximum
+of the groupings. For example, BILL\_AMT\_AVG is the mean of BILL\_AMT(1-6).
+These can be seen in \autoref{hists_computed}
 
 \begin{figure}[ht]
 	\centering
@@ -165,11 +167,11 @@ traits become evident.
 
 All features, pre-existing and computed, are left in the dataset for analysis.
 To aid in dataset understanding and feature selection, for each feature, a
-single-input regression is trained. The performance of each regression is seen
-in \autoref{feature_performance}. See \autoref{results} for more details on
-K-Fold cross-validation, imbalance correction, and AUROC performance evaluation
-criteria. Scores are rescaled from [0.5, 1] to [0, 1], as a random model would
-achieve a AUROC of 0.5.
+single-input regression is trained using the same methods in \autoref{results}.
+The performance of each regression is seen in \autoref{feature_performance}.
+See \autoref{results} for more details on K-Fold cross-validation, imbalance
+correction, and AUROC performance evaluation criteria. Scores are rescaled from
+	[0.5, 1] to [0, 1], as a random model would achieve a AUROC of 0.5.
 
 \FloatBarrier
 \section{DATA TRANSFORMATION \& MODELS USED}
@@ -177,10 +179,10 @@ achieve a AUROC of 0.5.
 \subsection{Feature Scaling}
 
 Of the two model types considered in \autoref{regression} and
-\autoref{rforest}, only the regression will require data normalization. The
-decision trees will not be affected by feature scale or offset. Therefore, all
-features are normalized by standard-deviation. The features are not
-re-centered, as the zero-points have intrinsic meaning.
+\autoref{rforest}, the regression will require data normalization. The decision
+trees will not be affected by feature scale or offset. Therefore, all features
+are normalized by standard-deviation. The features are not re-centered, as the
+zero-points have intrinsic meaning.
 
 \subsection{One-hot Encoding for Logistic Regression Classifier}
 
@@ -189,16 +191,17 @@ encoded into additional feature columns.
 
 \subsection{Integer Label Encoding for Random Forest Classifier}
 
-The dataset has all categorical features encoded as integers.
+The dataset has all categorical features encoded as integers. No modification
+for label encoding is needed.
 
 \subsection{Logistic Regression Classifier} \label{regression}
 
 Initially, a logistic regression classifier was chosen to model the account
 defaults. Specifically, the LogisticRegression class from the scikit-learn
-Python library\cite{sklearn_api}. The initial fitting using default parameters,
-and achieves a score of 44.7\% with a standard deviation of 1.2\%. Only
-original dataset features (non computed or encoded) were used in the initial
-evaluation.
+Python library\cite{sklearn_api}. The initial fitting using default parameters
+and all features, and achieves a score of 44.7\% with a standard deviation of
+1.2\%. Only original dataset features (non computed or encoded) were used in
+the initial evaluation.
 
 \subsection{Random Forest Ensemble Classifier} \label{rforest}
 
@@ -245,7 +248,7 @@ evaluation. Standard deviations are provided from the five samples.
 When changing the input column selection, on occasion the variance of ROC
 curves would dramatically increase. When this happens, increasing the number of
 iterations improved the score. The addition of the binary-encoded and computed
-features increased the score to 49.1\% with standard-deviation 1.1\%. The
+features increased the score to 48.8\% with standard-deviation 1.1\%. The
 maximum iterations limit was increased from 100 to 1,000, which only resulted
 in minimal improvement. \autoref{roc} shows the final ROC curves of the model.
 
@@ -253,7 +256,7 @@ in minimal improvement. \autoref{roc} shows the final ROC curves of the model.
 
 Including the computed features, increasing the number of estimators to 1,000,
 using a warm start, and changing to log\_loss, and disabling the random
-over-sampling increased the score to 54.6\% with a standard-deviation of 1.2\%.
+over-sampling increased the score to 54.4\% with a standard-deviation of 1.8\%.
 \autoref{roc} shows the final ROC curves of the model.
 
 \FloatBarrier
