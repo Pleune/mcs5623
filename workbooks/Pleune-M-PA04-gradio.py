@@ -54,8 +54,8 @@ print("Done training")
 
 def predict(*args):
     print(str(args))
-    prob = classifier.predict_proba(pd.DataFrame((args,), columns=col_selections[:-1]))
-    return f"{prob[0][0]:.2}% probability"
+    prob = 1-classifier.predict_proba(pd.DataFrame((args,), columns=col_selections[:-1]))
+    return f"{prob[0][0]:.2}% probability of default next month"
 
 
 demo = gr.Interface(

@@ -9,6 +9,7 @@
 \usepackage{subfig}
 \usepackage{placeins}
 \usepackage{float}
+\usepackage{multicol}
 \addbibresource{refrences.bib}
 \hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
 
@@ -287,11 +288,56 @@ account risk. A continuous metric could be "account defaulted in n months."
 
 \section*{APPENDIX A}
 
-The Jupyter Notebook with the data and Python code used in this paper will be
-available at
-\href{https://github.com/Pleune/mcs5623/}{github.com/Pleune/mcs5623} after the
-completion of the course. Included here are locked versions of all Python
-modules to ensure repeatability.
+The Jupyter Notebook with the all data, graphics, and Python code used in this paper will be
+available at the URL
+\href{https://git.pleunetowne.com/mitchpleune/mcs5623/}{git.pleunetowne.com/mitchpleune/mcs5623}.
+Included there are locked versions of all Python modules to ensure
+repeatability.
+
+\section*{Steps to Run Notebook and Gradio App}
+
+First, clone the git repo and change into its directory with \texttt{git clone
+	https://git.pleunetowne.com/ mitchpleune/mcs5623.git; cd mcs5623}.
+
+Next, ensure your environment meets the following requirements. The package
+manager Poetry can be used to manage the dependencies if needed. First install
+Poetry itself. On Ubuntu or Debian systems, this can be done with `\texttt{sudo
+	apt install python3-poetry}'. Then one would install and activate the
+environment with `\texttt{poetry install --with gradio,jupyter; poetry shell}'.
+Once this process completes, your shell will have an activated Python3.12
+virtual environment with all the required dependencies of the exactly correct
+version.
+\begin{multicols}{2}
+	\begin{itemize}
+		\small
+		\item Python3.12
+		\item scikit-learn \textasciicircum1.5.1
+		\item pandas \textasciicircum2.2.2
+		\item matplotlib \textasciicircum3.9.2
+		\item seaborn \textasciicircum0.13.2
+		\item openpyxl \textasciicircum3.1.5
+		\item xlrd \textasciicircum2.0.1
+		\item imbalanced-learn \textasciicircum0.12.4
+		\item jupyterlab \textasciicircum4.2.5
+		\item gradio \textasciicircum5.4.0
+	\end{itemize}
+\end{multicols}
+
+To run Gradio using the random forest model, invoke the Gradio command-line
+tool with the command `\texttt{gradio workbooks/Pleune-M-PA04-gradio.py}'.
+After waiting a few seconds for the model to train, navigate to
+\mbox{\href{http://localhost:7860/}{localhost:7860}} in any modern web browser.
+You should see an interface similar to \autoref{gradio}.
+
+\begin{figure}[H]
+	\includegraphics[width=\linewidth]{../../workbooks/Pleune-M-PA04-gradio-screenshot.png}
+	\caption{The Gradio interface}
+	\label{gradio}
+\end{figure}
+
+To open the Jupyter Lab notebook, which was used do the analysis of this paper,
+run the command `\texttt{jupyter lab}', then opening the link in the terminal
+output, and navigate to \texttt{workbooks/Pleune-M-PA04.ipynb}.
 
 \printbibliography
 
