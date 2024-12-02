@@ -16,6 +16,7 @@ seaborn = "^0.13.2"
 openpyxl = "^3.1.5"
 xlrd = "^2.0.1"
 imbalanced-learn = "^0.12.4"
+apriori-python = {git = "https://github.com/chonyy/apriori_python.git"}
 
 [tool.poetry.group.jupyter.dependencies]
 jupyterlab = "^4.2.5"
